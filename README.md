@@ -4,27 +4,36 @@
 
 ## 技術スタック
 
-- **Frontend**: Next.js 15 (App Router), TypeScript, Tailwind CSS
-- **Backend**: Supabase (PostgreSQL + Auth + Storage)
-- **Authentication**: WebAuthn (@simplewebauthn)
+- **Frontend**: Next.js 15 (App Router), TypeScript, Tailwind CSS 4
+- **Backend**: Supabase (PostgreSQL + RLS)
+- **Authentication**: WebAuthn / FIDO2 (@simplewebauthn)
 - **Deployment**: Vercel
+- **Validation**: Zod
 
 ## 主な機能
 
 ### 1. Admin Dashboard (`/admin`)
+- Basic認証による管理者保護
 - 予約の作成と管理
-- Secret Code自動生成
+- Secret Code自動生成（XXX-XXX-XXX形式）
 - ゲスト登録URLの発行
 
 ### 2. Guest Registration (`/register/[id]`)
-- 宿泊者名簿の入力
-- 生体認証デバイスの登録（パスキー）
+- 宿泊者名簿の入力（氏名・住所・連絡先）
+- 生体認証デバイスの登録（Discoverable Credential / パスキー）
 - Secret Code表示
 
 ### 3. Check-in (`/checkin`)
-- 生体認証（ユーザー名なし認証）
+- 生体認証（ユーザー名なし認証 / Usernameless Authentication）
 - Secret Code検証
 - スマートロックPIN表示
+
+### 4. セキュリティ
+- FIDO2/WebAuthn準拠のパスキー認証
+- 生体認証 + Secret Code の二段階認証
+- セキュリティヘッダー（X-Frame-Options, CSP等）
+- Admin Basic認証ミドルウェア
+- 期限切れChallenge自動削除（Vercel Cron）
 
 ## セットアップ手順
 
@@ -33,124 +42,119 @@
 1. [Supabase](https://supabase.com) にアクセスし、新規プロジェクトを作成
 2. プロジェクト設定から以下の情報を取得：
    - Project URL
-   - Anon public key
-   - Service role key (秘密情報)
+   - Publishable key (anon key)
+   - Secret key (service_role key)
 
 ### 2. データベース初期化
 
-Supabase Dashboard → SQL Editor で以下を実行：
+Supabase Dashboard → SQL Editor で `supabase/migrations/001_initial_schema.sql` の内容を実行。
 
-```bash
-# supabase/migrations/001_initial_schema.sql の内容をコピー&ペースト
-```
+以下のテーブルが作成されます：
+- `reservations` - 予約情報
+- `passkeys` - WebAuthnパスキー認証情報
+- `challenges` - WebAuthnチャレンジ（5分で期限切れ）
 
 ### 3. 環境変数設定
 
-`.env.local` を編集して、Supabase接続情報を設定：
+`.env.local` を編集：
 
 ```env
+# Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-publishable-key
+SUPABASE_SERVICE_ROLE_KEY=your-secret-key
 
+# WebAuthn
 NEXT_PUBLIC_RP_NAME=Smart Check-in
-NEXT_PUBLIC_RP_ID=localhost
-NEXT_PUBLIC_ORIGIN=http://localhost:3000
+NEXT_PUBLIC_RP_ID=localhost                    # 本番: yourdomain.com
+NEXT_PUBLIC_ORIGIN=http://localhost:3000       # 本番: https://yourdomain.com
 
-ADMIN_PASSWORD=your-secure-password
+# Admin Authentication
+ADMIN_PASSWORD=your-secure-password           # ユーザー名は "admin"
+
+# Cron (optional, for Vercel)
+CRON_SECRET=your-cron-secret
 ```
 
 ### 4. 開発サーバー起動
 
 ```bash
+npm install
 npm run dev
 ```
 
 http://localhost:3000 でアクセス可能になります。
 
-## ディレクトリ構造
+## 本番環境デプロイ (Vercel)
 
-```
-smart-checkin-app/
-├── app/
-│   ├── admin/              # 管理者ダッシュボード
-│   ├── register/[id]/      # ゲスト事前登録
-│   ├── checkin/            # 当日チェックイン
-│   └── api/                # API Routes
-│       ├── reservations/   # 予約管理API
-│       └── webauthn/       # WebAuthn API
-├── lib/
-│   ├── supabase/           # Supabaseクライアント
-│   ├── webauthn/           # WebAuthn設定
-│   └── utils/              # ユーティリティ
-└── supabase/
-    └── migrations/         # DBマイグレーション
-```
-
-## 開発ガイド
-
-### WebAuthn について
-
-このアプリは**ユーザー名なし認証**（Usernameless Authentication）を採用しています。
-
-- **Registration**: `residentKey: 'required'` で Discoverable Credential を有効化
-- **Authentication**: `allowCredentials` を指定せず、クライアント側で全パスキーを検索
-- **User Discovery**: 認証成功後、`credentialID` から該当の予約を特定
-
-### Secret Code について
-
-- **フォーマット**: `XXX-XXX-XXX` (3グループ × 3文字)
-- **文字セット**: `23456789ABCDEFGHJKLMNPQRSTUVWXYZ` (32文字)
-  - 紛らわしい文字を除外: `0/O`, `1/I/l`
-- **エントロピー**: 32^9 ≈ 35兆通り
-
-### セキュリティ考慮事項
-
-1. **HTTPS必須**: WebAuthnは本番環境でHTTPS必須（localhost除く）
-2. **Service Role Key**: `.env.local` をgitに含めない（`.gitignore`で除外）
-3. **RLS**: 開発環境は全許可、本番環境では厳格化すること
-4. **RP ID**: 本番環境では実際のドメインに変更必須
-
-## 本番環境デプロイ
-
-### Vercelデプロイ
+### 1. デプロイ
 
 ```bash
 # GitHub にプッシュ後、Vercel でインポート
 vercel --prod
 ```
 
-### 環境変数更新
+### 2. 環境変数設定
 
-Vercel Dashboard → Settings → Environment Variables で設定：
+Vercel Dashboard → Settings → Environment Variables で以下を設定：
 
-```env
-NEXT_PUBLIC_RP_ID=yourdomain.com  # プロトコル・ポート除く
-NEXT_PUBLIC_ORIGIN=https://yourdomain.com
-ADMIN_PASSWORD=本番用強力パスワード
-```
+| 変数名 | 値 | 備考 |
+|--------|-----|------|
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://xxx.supabase.co` | Supabase Dashboard から |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `sb_publishable_...` | Publishable key |
+| `SUPABASE_SERVICE_ROLE_KEY` | `sb_secret_...` | Secret key |
+| `NEXT_PUBLIC_RP_NAME` | `Smart Check-in` | |
+| `NEXT_PUBLIC_RP_ID` | `yourdomain.com` | ドメイン名のみ |
+| `NEXT_PUBLIC_ORIGIN` | `https://yourdomain.com` | HTTPS必須 |
+| `ADMIN_PASSWORD` | 強力なパスワード | Basic認証用 |
+| `CRON_SECRET` | ランダム文字列 | Cron認証用 |
 
-### RLS厳格化
+### 3. RLS厳格化
 
 `supabase/migrations/001_initial_schema.sql` のコメントアウトされた本番用ポリシーを有効化。
+
+## ディレクトリ構造
+
+```
+src/
+├── app/
+│   ├── admin/              # 管理者ダッシュボード
+│   ├── checkin/            # 当日チェックイン
+│   ├── register/[id]/      # ゲスト事前登録
+│   ├── api/
+│   │   ├── reservations/   # 予約管理API
+│   │   ├── webauthn/       # WebAuthn API
+│   │   └── cron/           # 定期実行API
+│   ├── error.tsx           # エラーページ
+│   ├── not-found.tsx       # 404ページ
+│   ├── loading.tsx         # ローディング
+│   ├── layout.tsx          # ルートレイアウト
+│   └── page.tsx            # ランディングページ
+├── lib/
+│   ├── supabase/           # Supabaseクライアント
+│   ├── webauthn/           # WebAuthn設定
+│   └── utils/              # ユーティリティ
+└── middleware.ts            # Admin認証ミドルウェア
+```
 
 ## トラブルシューティング
 
 ### WebAuthn が動作しない
-
 - **localhost以外**: HTTPSが必須
-- **RP ID不一致**: `.env.local` のRP_IDがドメインと一致しているか確認
+- **RP ID不一致**: `.env.local` の `RP_ID` がドメインと一致しているか確認
 - **対応ブラウザ**: Chrome, Safari, Firefox の最新版を使用
+- **127.0.0.1**: `localhost` でアクセスしてください
 
 ### Challenge期限切れエラー
-
-- Challengeは5分で期限切れ
-- 再度認証フローをやり直してください
+- Challengeは5分で期限切れ → 再度認証フローをやり直してください
 
 ### Supabase接続エラー
-
 - `.env.local` の URL と Key が正しいか確認
-- Supabase Dashboard でプロジェクトが起動しているか確認
+- サーバー再起動: `npm run dev` を停止→再実行
+
+### Admin認証
+- ユーザー名: `admin`
+- パスワード: `.env.local` の `ADMIN_PASSWORD` の値
 
 ## ライセンス
 
