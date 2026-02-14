@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server';
  * @returns The challenge ID
  */
 export async function saveChallenge(challenge: string): Promise<string> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from('challenges')
@@ -27,7 +27,7 @@ export async function saveChallenge(challenge: string): Promise<string> {
  * @returns The challenge string or null if expired/not found
  */
 export async function getChallenge(id: string): Promise<string | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from('challenges')
@@ -48,7 +48,7 @@ export async function getChallenge(id: string): Promise<string | null> {
  * @param id - The challenge ID to delete
  */
 export async function deleteChallenge(id: string): Promise<void> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   await supabase
     .from('challenges')
@@ -60,7 +60,7 @@ export async function deleteChallenge(id: string): Promise<void> {
  * Clean up expired challenges (call periodically via cron job)
  */
 export async function cleanupExpiredChallenges(): Promise<void> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   await supabase
     .from('challenges')
