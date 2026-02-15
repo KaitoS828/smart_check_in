@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import { startAuthentication } from '@simplewebauthn/browser';
+import { useI18n } from '@/lib/i18n/context';
 
 interface BiometricAuthProps {
-  onAuthSuccess: (reservationId: string) => void;
+  onAuthSuccess: (result: { reservationId: string }) => void;
 }
 
 export default function BiometricAuth({ onAuthSuccess }: BiometricAuthProps) {
+  const { t } = useI18n();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -17,9 +19,7 @@ export default function BiometricAuth({ onAuthSuccess }: BiometricAuthProps) {
 
     try {
       if (!window.PublicKeyCredential) {
-        throw new Error(
-          'このブラウザはWebAuthn（生体認証）に対応していません。Chrome、Safari、Firefoxの最新版をご利用ください。'
-        );
+        throw new Error(t('bio.notSupported'));
       }
 
       const optionsResponse = await fetch(
@@ -28,7 +28,6 @@ export default function BiometricAuth({ onAuthSuccess }: BiometricAuthProps) {
       );
 
       const optionsData = await optionsResponse.json();
-
       if (!optionsResponse.ok) {
         throw new Error(optionsData.error || 'Failed to get authentication options');
       }
@@ -40,9 +39,9 @@ export default function BiometricAuth({ onAuthSuccess }: BiometricAuthProps) {
         credential = await startAuthentication(options);
       } catch (authError) {
         if (authError instanceof Error && authError.name === 'NotAllowedError') {
-          throw new Error('生体認証がキャンセルされました。もう一度お試しください。');
+          throw new Error(t('bio.cancelled'));
         }
-        throw new Error('生体認証に失敗しました。登録したデバイスで認証を行ってください。');
+        throw new Error(t('bio.failed'));
       }
 
       const verifyResponse = await fetch('/api/webauthn/authenticate/verify', {
@@ -52,14 +51,13 @@ export default function BiometricAuth({ onAuthSuccess }: BiometricAuthProps) {
       });
 
       const verifyData = await verifyResponse.json();
-
       if (!verifyResponse.ok) {
-        throw new Error(verifyData.error || 'Authentication verification failed');
+        throw new Error(verifyData.error || 'Authentication failed');
       }
 
-      onAuthSuccess(verifyData.reservationId);
+      onAuthSuccess({ reservationId: verifyData.reservationId });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setIsLoading(false);
     }
@@ -68,18 +66,16 @@ export default function BiometricAuth({ onAuthSuccess }: BiometricAuthProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-foreground mb-2">生体認証</h2>
+        <h2 className="text-xl font-semibold text-foreground mb-2">{t('bio.title')}</h2>
         <p className="text-text-secondary text-sm leading-relaxed">
-          事前登録したデバイスで生体認証を行ってください。
+          {t('bio.description')}
         </p>
       </div>
 
       <div className="bg-surface-secondary rounded-lg p-4">
-        <ul className="text-sm text-text-secondary space-y-1.5">
-          <li>・ 登録したデバイスを使用してください</li>
-          <li>・ Touch ID / Face ID / Windows Hello で認証します</li>
-          <li>・ 認証後、Secret Codeの入力が必要です</li>
-        </ul>
+        <p className="text-sm text-text-secondary">
+          {t('bio.supported')}
+        </p>
       </div>
 
       {error && (
@@ -96,10 +92,10 @@ export default function BiometricAuth({ onAuthSuccess }: BiometricAuthProps) {
         {isLoading ? (
           <span className="flex items-center justify-center gap-2">
             <span className="inline-block w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" />
-            生体認証を待機中...
+            {t('bio.waiting')}
           </span>
         ) : (
-          'チェックインを開始'
+          t('bio.start')
         )}
       </button>
     </div>

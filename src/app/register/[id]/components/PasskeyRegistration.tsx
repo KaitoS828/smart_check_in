@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { startRegistration } from '@simplewebauthn/browser';
 import { Reservation } from '@/lib/supabase/types';
+import { useI18n } from '@/lib/i18n/context';
 
 interface PasskeyRegistrationProps {
   reservation: Reservation;
@@ -13,6 +14,7 @@ export default function PasskeyRegistration({
   reservation,
   onPasskeyRegistered,
 }: PasskeyRegistrationProps) {
+  const { t } = useI18n();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isRegistered, setIsRegistered] = useState(false);
@@ -23,9 +25,7 @@ export default function PasskeyRegistration({
 
     try {
       if (!window.PublicKeyCredential) {
-        throw new Error(
-          'このブラウザはWebAuthn（生体認証）に対応していません。Chrome、Safari、Firefoxの最新版をご利用ください。'
-        );
+        throw new Error(t('bio.notSupported'));
       }
 
       const optionsResponse = await fetch(
@@ -50,9 +50,9 @@ export default function PasskeyRegistration({
         credential = await startRegistration(options);
       } catch (regError) {
         if (regError instanceof Error && regError.name === 'NotAllowedError') {
-          throw new Error('生体認証がキャンセルされました。もう一度お試しください。');
+          throw new Error(t('bio.cancelled'));
         }
-        throw new Error('生体認証に失敗しました。デバイスの設定をご確認ください。');
+        throw new Error(t('bio.failed'));
       }
 
       const verifyResponse = await fetch('/api/webauthn/register/verify', {
@@ -74,7 +74,7 @@ export default function PasskeyRegistration({
       setIsRegistered(true);
       onPasskeyRegistered();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setIsLoading(false);
     }
@@ -84,20 +84,20 @@ export default function PasskeyRegistration({
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-foreground mb-2">
-          生体認証デバイス登録
+          {t('passkey.title')}
         </h2>
         <p className="text-text-secondary text-sm">
-          チェックイン時に使用する生体認証（パスキー）を登録します。
+          {t('passkey.description')}
         </p>
       </div>
 
       <div className="bg-surface-secondary rounded-lg p-4">
-        <p className="text-sm font-medium text-foreground mb-2">対応デバイス:</p>
+        <p className="text-sm font-medium text-foreground mb-2">{t('passkey.supported')}</p>
         <ul className="text-sm text-text-secondary space-y-1">
-          <li>・ iPhone/iPad: Face ID または Touch ID</li>
-          <li>・ Mac: Touch ID</li>
-          <li>・ Windows: Windows Hello（顔認証・指紋認証）</li>
-          <li>・ Android: 指紋認証または顔認証</li>
+          <li>・ {t('passkey.iphone')}</li>
+          <li>・ {t('passkey.mac')}</li>
+          <li>・ {t('passkey.windows')}</li>
+          <li>・ {t('passkey.android')}</li>
         </ul>
       </div>
 
@@ -110,21 +110,21 @@ export default function PasskeyRegistration({
       {isRegistered ? (
         <div className="space-y-4 animate-fade-in">
           <div className="bg-success/5 border border-success/20 rounded-lg p-4">
-            <p className="text-sm font-semibold text-success mb-1">✓ デバイス登録が完了しました</p>
+            <p className="text-sm font-semibold text-success mb-1">{t('passkey.success')}</p>
             <p className="text-sm text-text-secondary">
-              チェックイン当日は、このデバイスで生体認証を行ってください。
+              {t('passkey.successDesc')}
             </p>
           </div>
 
           <div className="border-2 border-foreground rounded-lg p-4">
             <p className="text-xs font-semibold text-text-secondary uppercase tracking-widest mb-1">
-              Secret Code
+              {t('passkey.secretCode')}
             </p>
             <p className="text-2xl font-bold font-mono text-foreground tracking-widest">
               {reservation.secret_code}
             </p>
             <p className="text-xs text-text-muted mt-2">
-              このSecret Codeは当日のチェックインで必要です。スクリーンショットを保存してください。
+              {t('passkey.secretCodeNote')}
             </p>
           </div>
         </div>
@@ -137,16 +137,16 @@ export default function PasskeyRegistration({
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">
               <span className="inline-block w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" />
-              生体認証を待機中...
+              {t('passkey.waiting')}
             </span>
           ) : (
-            'デバイスを登録（生体認証）'
+            t('passkey.register')
           )}
         </button>
       )}
 
       <p className="text-xs text-text-muted">
-        ※ 生体認証を登録すると、チェックイン時にこのデバイスでのみ解錠PINを取得できます。
+        {t('passkey.note')}
       </p>
     </div>
   );

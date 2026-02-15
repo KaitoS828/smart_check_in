@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Reservation } from '@/lib/supabase/types';
+import { useI18n } from '@/lib/i18n/context';
 
 interface CreateReservationFormProps {
   onReservationCreated: (reservation: Reservation) => void;
@@ -10,6 +11,7 @@ interface CreateReservationFormProps {
 export default function CreateReservationForm({
   onReservationCreated,
 }: CreateReservationFormProps) {
+  const { t, locale } = useI18n();
   const [doorPin, setDoorPin] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -43,7 +45,7 @@ export default function CreateReservationForm({
       setDoorPin('');
       onReservationCreated(data.reservation);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setIsLoading(false);
     }
@@ -63,6 +65,45 @@ export default function CreateReservationForm({
   const generateEmailBody = () => {
     if (!createdReservation) return '';
     const url = getRegistrationUrl();
+
+    if (locale === 'en') {
+      return `Thank you for your reservation.
+
+No front desk procedure is required on check-in day.
+Please complete pre-registration beforehand and use self-check-in upon arrival.
+
+━━━━━━━━━━━━━━━━━━━━
+■ Pre-registration (Before arrival)
+━━━━━━━━━━━━━━━━━━━━
+
+Access the following URL:
+${url}
+
+Steps:
+1. Enter guest information (name, address, contact)
+2. Register biometric device (Touch ID / Face ID, etc.)
+3. A Secret Code will be displayed → please save it
+
+━━━━━━━━━━━━━━━━━━━━
+■ Secret Code
+━━━━━━━━━━━━━━━━━━━━
+
+${createdReservation.secret_code}
+
+* Required for check-in. Please save this code.
+
+━━━━━━━━━━━━━━━━━━━━
+■ Check-in on the day
+━━━━━━━━━━━━━━━━━━━━
+
+1. Access the check-in page
+2. Authenticate with your registered device
+3. Enter the Secret Code
+4. The door unlock PIN will be displayed
+
+If you have any questions, please don't hesitate to contact us.
+We look forward to welcoming you.`;
+    }
 
     return `この度はご予約いただきありがとうございます。
 
@@ -103,13 +144,13 @@ ${createdReservation.secret_code}
   };
 
   const handleOpenMailApp = () => {
-    const subject = encodeURIComponent('【ご予約ありがとうございます】セルフチェックインのご案内');
+    const subject = encodeURIComponent(t('admin.emailSubject'));
     const body = encodeURIComponent(generateEmailBody());
     window.open(`mailto:?subject=${subject}&body=${body}`);
   };
 
   const handleCopyEmail = () => {
-    const subject = '【ご予約ありがとうございます】セルフチェックインのご案内\n\n';
+    const subject = t('admin.emailSubject') + '\n\n';
     handleCopy(subject + generateEmailBody(), 'email');
   };
 
@@ -117,11 +158,8 @@ ${createdReservation.secret_code}
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label
-            htmlFor="door_pin"
-            className="block text-sm font-medium text-foreground mb-1.5"
-          >
-            スマートロック Door PIN
+          <label htmlFor="door_pin" className="block text-sm font-medium text-foreground mb-1.5">
+            {t('admin.doorPin')}
           </label>
           <input
             type="text"
@@ -129,12 +167,12 @@ ${createdReservation.secret_code}
             value={doorPin}
             onChange={(e) => setDoorPin(e.target.value)}
             className="block w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 focus:border-foreground/40"
-            placeholder="例: 1234"
+            placeholder="1234"
             required
             disabled={isLoading}
           />
           <p className="mt-1.5 text-xs text-text-muted">
-            チェックイン後にゲストに提示される解錠用PINコードです
+            {t('admin.doorPinHint')}
           </p>
         </div>
 
@@ -149,87 +187,52 @@ ${createdReservation.secret_code}
           disabled={isLoading}
           className="w-full py-3 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? '作成中...' : '新規予約を作成'}
+          {isLoading ? t('admin.creating') : t('admin.createButton')}
         </button>
       </form>
 
       {showSuccess && createdReservation && (
         <div className="rounded-lg border-2 border-success/30 bg-success/5 p-5 space-y-4 animate-fade-in">
-          <p className="text-sm font-semibold text-success">✓ 予約が作成されました</p>
+          <p className="text-sm font-semibold text-success">{t('admin.created')}</p>
 
-          {/* Registration URL */}
           <div>
-            <p className="text-xs font-medium text-text-secondary mb-1.5">
-              事前登録URL
-            </p>
+            <p className="text-xs font-medium text-text-secondary mb-1.5">{t('admin.regUrl')}</p>
             <div className="flex gap-2">
-              <input
-                type="text"
-                value={getRegistrationUrl()}
-                readOnly
-                className="flex-1 px-3 py-2 bg-surface border border-border rounded-lg text-xs font-mono text-foreground"
-              />
-              <button
-                onClick={() => handleCopy(getRegistrationUrl(), 'url')}
-                className="px-3 py-2 border border-border rounded-lg text-xs font-medium text-foreground hover:bg-surface-secondary transition-colors"
-              >
-                {copiedField === 'url' ? '✓' : 'コピー'}
+              <input type="text" value={getRegistrationUrl()} readOnly className="flex-1 px-3 py-2 bg-surface border border-border rounded-lg text-xs font-mono text-foreground" />
+              <button onClick={() => handleCopy(getRegistrationUrl(), 'url')} className="px-3 py-2 border border-border rounded-lg text-xs font-medium text-foreground hover:bg-surface-secondary transition-colors">
+                {copiedField === 'url' ? t('common.copied') : t('common.copy')}
               </button>
             </div>
           </div>
 
-          {/* Secret Code */}
           <div>
-            <p className="text-xs font-medium text-text-secondary mb-1.5">
-              Secret Code
-            </p>
+            <p className="text-xs font-medium text-text-secondary mb-1.5">Secret Code</p>
             <div className="flex gap-2">
-              <input
-                type="text"
-                value={createdReservation.secret_code}
-                readOnly
-                className="flex-1 px-3 py-2 bg-surface border border-border rounded-lg text-lg font-bold font-mono text-foreground"
-              />
-              <button
-                onClick={() => handleCopy(createdReservation.secret_code, 'code')}
-                className="px-3 py-2 border border-border rounded-lg text-xs font-medium text-foreground hover:bg-surface-secondary transition-colors"
-              >
-                {copiedField === 'code' ? '✓' : 'コピー'}
+              <input type="text" value={createdReservation.secret_code} readOnly className="flex-1 px-3 py-2 bg-surface border border-border rounded-lg text-lg font-bold font-mono text-foreground" />
+              <button onClick={() => handleCopy(createdReservation.secret_code, 'code')} className="px-3 py-2 border border-border rounded-lg text-xs font-medium text-foreground hover:bg-surface-secondary transition-colors">
+                {copiedField === 'code' ? t('common.copied') : t('common.copy')}
               </button>
             </div>
           </div>
 
-          {/* Email Actions */}
           <div className="border-t border-border pt-4 space-y-2">
-            <p className="text-xs font-medium text-text-secondary mb-2">
-              ゲストへの案内メール
-            </p>
-            <button
-              onClick={handleOpenMailApp}
-              className="w-full py-2.5 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90 transition-opacity"
-            >
-              メールアプリで作成
+            <p className="text-xs font-medium text-text-secondary mb-2">{t('admin.emailTitle')}</p>
+            <button onClick={handleOpenMailApp} className="w-full py-2.5 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90 transition-opacity">
+              {t('admin.emailApp')}
             </button>
-            <button
-              onClick={handleCopyEmail}
-              className="w-full py-2.5 px-4 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-surface-secondary transition-colors"
-            >
-              {copiedField === 'email' ? '✓ コピーしました' : 'メール文面をコピー'}
+            <button onClick={handleCopyEmail} className="w-full py-2.5 px-4 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-surface-secondary transition-colors">
+              {copiedField === 'email' ? t('admin.emailCopied') : t('admin.emailCopy')}
             </button>
-            <button
-              onClick={() => setShowEmailPreview(!showEmailPreview)}
-              className="w-full py-2 px-4 text-xs text-text-secondary hover:text-foreground transition-colors"
-            >
-              {showEmailPreview ? '▲ プレビューを閉じる' : '▼ メール文面をプレビュー'}
+            <button onClick={() => setShowEmailPreview(!showEmailPreview)} className="w-full py-2 px-4 text-xs text-text-secondary hover:text-foreground transition-colors">
+              {showEmailPreview ? t('admin.emailPreviewClose') : t('admin.emailPreview')}
             </button>
           </div>
 
-          {/* Email Preview */}
           {showEmailPreview && (
             <div className="border border-border rounded-lg overflow-hidden animate-fade-in">
               <div className="bg-surface-secondary px-4 py-2 border-b border-border">
                 <p className="text-xs font-semibold text-foreground">
-                  件名: 【ご予約ありがとうございます】セルフチェックインのご案内
+                  Subject: {t('admin.emailSubject')}
                 </p>
               </div>
               <pre className="px-4 py-3 text-xs text-text-secondary whitespace-pre-wrap font-sans leading-relaxed max-h-80 overflow-y-auto">
@@ -240,7 +243,7 @@ ${createdReservation.secret_code}
 
           <div className="bg-warning/5 border border-warning/20 rounded-lg p-3">
             <p className="text-xs text-warning">
-              <strong>重要:</strong> Secret Codeは当日のチェックインで必要です。URLと一緒にゲストに送付してください。
+              <strong>{t('admin.important')}</strong> {t('admin.importantNote')}
             </p>
           </div>
         </div>

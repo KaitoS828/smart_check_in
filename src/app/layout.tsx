@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
+import { I18nProvider } from "@/lib/i18n/context";
 import "./globals.css";
 
 const inter = Inter({
@@ -19,11 +20,11 @@ export const metadata: Metadata = {
     template: "%s | Smart Check-in",
   },
   description:
-    "無人宿泊施設向けセルフチェックインシステム。生体認証とSecret Codeで安全・スムーズなチェックインを実現。",
-  keywords: ["チェックイン", "WebAuthn", "生体認証", "無人宿泊", "セルフチェックイン"],
+    "Secure self-check-in system for unmanned accommodation. Biometric authentication and Secret Code for safe, smooth check-in.",
+  keywords: ["check-in", "WebAuthn", "biometric", "self-check-in", "smart lock"],
   openGraph: {
     title: "Smart Check-in",
-    description: "生体認証によるセルフチェックインシステム",
+    description: "Biometric self-check-in system",
     type: "website",
   },
 };
@@ -38,7 +39,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <I18nProvider>{children}</I18nProvider>
       </body>
     </html>
   );

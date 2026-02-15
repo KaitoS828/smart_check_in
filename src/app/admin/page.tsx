@@ -5,8 +5,10 @@ import Link from 'next/link';
 import { Reservation } from '@/lib/supabase/types';
 import ReservationList from './components/ReservationList';
 import CreateReservationForm from './components/CreateReservationForm';
+import { useI18n } from '@/lib/i18n/context';
 
 export default function AdminPage() {
+  const { t, toggleLocale } = useI18n();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -22,7 +24,7 @@ export default function AdminPage() {
 
       setReservations(data.reservations);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setIsLoading(false);
     }
@@ -30,6 +32,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     fetchReservations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleReservationCreated = (newReservation: Reservation) => {
@@ -38,30 +41,36 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <nav className="max-w-6xl mx-auto px-6 py-8 flex items-center justify-between">
         <Link href="/" className="text-lg font-semibold tracking-tight text-foreground">
-          Smart Check-in
+          {t('common.appName')}
         </Link>
-        <span className="text-xs font-medium text-text-muted uppercase tracking-widest">
-          Admin
-        </span>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={toggleLocale}
+            className="text-xs font-medium px-2.5 py-1 border border-border rounded-md text-text-secondary hover:text-foreground hover:border-foreground/30 transition-colors"
+          >
+            {t('lang.toggle')}
+          </button>
+          <span className="text-xs font-medium text-text-muted uppercase tracking-widest">
+            {t('common.admin')}
+          </span>
+        </div>
       </nav>
 
       <div className="max-w-6xl mx-auto px-6 pb-16">
         <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">
-          管理ダッシュボード
+          {t('admin.title')}
         </h1>
         <p className="text-text-secondary mb-10">
-          予約の作成と管理
+          {t('admin.subtitle')}
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Create Reservation Form */}
           <div className="lg:col-span-1">
             <div className="border border-border rounded-lg p-6">
               <h2 className="text-lg font-semibold text-foreground mb-4">
-                新規予約作成
+                {t('admin.createTitle')}
               </h2>
               <CreateReservationForm
                 onReservationCreated={handleReservationCreated}
@@ -69,19 +78,18 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* Reservations List */}
           <div className="lg:col-span-2">
             <div className="border border-border rounded-lg p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-lg font-semibold text-foreground">
-                  予約一覧
+                  {t('admin.listTitle')}
                 </h2>
                 <button
                   onClick={fetchReservations}
                   className="px-4 py-2 text-sm font-medium border border-border rounded-lg text-foreground hover:bg-surface-secondary transition-colors"
                   disabled={isLoading}
                 >
-                  {isLoading ? '読込中...' : '更新'}
+                  {isLoading ? t('common.loading') : t('admin.refresh')}
                 </button>
               </div>
 
@@ -94,10 +102,10 @@ export default function AdminPage() {
               {isLoading ? (
                 <div className="text-center py-12">
                   <div className="inline-block w-6 h-6 border-2 border-border border-t-foreground rounded-full animate-spin" />
-                  <p className="mt-3 text-sm text-text-secondary">読込中...</p>
+                  <p className="mt-3 text-sm text-text-secondary">{t('common.loading')}</p>
                 </div>
               ) : (
-                <ReservationList reservations={reservations} />
+                <ReservationList reservations={reservations} onRefresh={fetchReservations} />
               )}
             </div>
           </div>

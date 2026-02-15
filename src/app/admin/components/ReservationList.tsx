@@ -1,80 +1,97 @@
 'use client';
 
 import { Reservation } from '@/lib/supabase/types';
+import { useI18n } from '@/lib/i18n/context';
 
 interface ReservationListProps {
   reservations: Reservation[];
+  onRefresh: () => void;
 }
 
-export default function ReservationList({ reservations }: ReservationListProps) {
-  if (reservations.length === 0) {
-    return (
-      <div className="text-center py-12 text-text-secondary text-sm">
-        予約がまだありません。新規予約を作成してください。
-      </div>
-    );
-  }
+export default function ReservationList({
+  reservations,
+  onRefresh,
+}: ReservationListProps) {
+  const { t } = useI18n();
+
+  const handleExportCsv = () => {
+    window.open('/api/reservations/export', '_blank');
+  };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full">
-        <thead>
-          <tr className="border-b border-border">
-            <th className="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">
-              予約ID
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">
-              宿泊者名
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">
-              Secret Code
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">
-              Door PIN
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">
-              状態
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">
-              作成日時
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {reservations.map((reservation) => (
-            <tr key={reservation.id} className="border-b border-border last:border-b-0">
-              <td className="px-4 py-3 text-sm font-mono text-foreground">
-                {reservation.id.slice(0, 8)}...
-              </td>
-              <td className="px-4 py-3 text-sm text-foreground">
-                {reservation.guest_name || (
-                  <span className="text-text-muted">未登録</span>
-                )}
-              </td>
-              <td className="px-4 py-3 text-sm font-mono font-semibold text-foreground">
-                {reservation.secret_code}
-              </td>
-              <td className="px-4 py-3 text-sm font-mono text-foreground">
-                {reservation.door_pin}
-              </td>
-              <td className="px-4 py-3">
-                {reservation.is_checked_in ? (
-                  <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-success/10 text-success">
-                    チェックイン済み
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-warning/10 text-warning">
-                    未チェックイン
-                  </span>
-                )}
-              </td>
-              <td className="px-4 py-3 text-sm text-text-secondary">
-                {new Date(reservation.created_at).toLocaleString('ja-JP')}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onRefresh}
+          className="px-3 py-1.5 border border-border rounded-lg text-xs font-medium text-foreground hover:bg-surface-secondary transition-colors"
+        >
+          {t('admin.refresh')}
+        </button>
+        <button
+          onClick={handleExportCsv}
+          className="px-3 py-1.5 border border-border rounded-lg text-xs font-medium text-foreground hover:bg-surface-secondary transition-colors"
+        >
+          {t('admin.csvExport')}
+        </button>
+      </div>
+
+      {reservations.length === 0 ? (
+        <p className="text-sm text-text-muted text-center py-8">
+          {t('admin.noReservations')}
+        </p>
+      ) : (
+        <div className="overflow-x-auto -mx-5">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="text-left px-3 py-2 text-xs font-semibold text-text-secondary">{t('admin.guestCol')}</th>
+                <th className="text-left px-3 py-2 text-xs font-semibold text-text-secondary">{t('admin.occupationCol')}</th>
+                <th className="text-left px-3 py-2 text-xs font-semibold text-text-secondary">{t('admin.secretCodeCol')}</th>
+                <th className="text-left px-3 py-2 text-xs font-semibold text-text-secondary">{t('admin.statusCol')}</th>
+                <th className="text-left px-3 py-2 text-xs font-semibold text-text-secondary">{t('admin.dateCol')}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {reservations.map((r) => (
+                <tr key={r.id} className="hover:bg-surface-secondary/50">
+                  <td className="px-3 py-2.5">
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {r.guest_name || t('admin.unregistered')}
+                      </p>
+                      {r.is_foreign_national && r.nationality && (
+                        <p className="text-xs text-text-muted">{r.nationality}</p>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2.5 text-text-secondary">
+                    {r.guest_occupation || '—'}
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <code className="text-xs font-mono bg-surface-secondary px-1.5 py-0.5 rounded">
+                      {r.secret_code}
+                    </code>
+                  </td>
+                  <td className="px-3 py-2.5">
+                    {r.is_checked_in ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-success/10 text-success">
+                        {t('admin.checkedIn')}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-surface-secondary text-text-muted">
+                        {t('admin.notCheckedIn')}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2.5 text-text-secondary text-xs">
+                    {new Date(r.created_at).toLocaleDateString('ja-JP')}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

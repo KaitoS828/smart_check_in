@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useI18n } from '@/lib/i18n/context';
 
 export default function AdminLoginPage() {
+  const { t, toggleLocale } = useI18n();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -25,12 +26,12 @@ export default function AdminLoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'ログインに失敗しました');
+        throw new Error(data.error || 'Login failed');
       }
 
       router.push('/admin');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'エラーが発生しました');
+      setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setIsLoading(false);
     }
@@ -39,30 +40,31 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-sm animate-fade-in">
+        <div className="flex justify-end mb-6">
+          <button
+            onClick={toggleLocale}
+            className="text-xs font-medium px-2.5 py-1 border border-border rounded-md text-text-secondary hover:text-foreground hover:border-foreground/30 transition-colors"
+          >
+            {t('lang.toggle')}
+          </button>
+        </div>
+
         <div className="text-center mb-8">
-          <Link href="/" className="text-lg font-semibold tracking-tight text-foreground">
-            Smart Check-in
-          </Link>
-          <h1 className="text-2xl font-bold text-foreground mt-6 mb-2">
-            管理者ログイン
-          </h1>
-          <p className="text-sm text-text-secondary">
-            パスワードを入力してください
-          </p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">{t('adminLogin.title')}</h1>
+          <p className="text-sm text-text-secondary">{t('adminLogin.subtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1.5">
-              パスワード
+              {t('adminLogin.password')}
             </label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="block w-full rounded-lg border border-border bg-surface px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 focus:border-foreground/40"
-              placeholder="••••••••"
+              className="block w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 focus:border-foreground/40"
               required
               autoFocus
               disabled={isLoading}
@@ -77,18 +79,12 @@ export default function AdminLoginPage() {
 
           <button
             type="submit"
-            disabled={isLoading || !password}
-            className="w-full py-3 px-4 rounded-lg bg-foreground text-background font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isLoading}
+            className="w-full py-3 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'ログイン中...' : 'ログイン'}
+            {isLoading ? t('adminLogin.submitting') : t('adminLogin.submit')}
           </button>
         </form>
-
-        <div className="mt-8 text-center">
-          <Link href="/" className="text-sm text-text-secondary hover:text-foreground transition-colors">
-            ← ホームに戻る
-          </Link>
-        </div>
       </div>
     </div>
   );

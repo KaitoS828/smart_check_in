@@ -1,144 +1,107 @@
+'use client';
+
 import Link from 'next/link';
+import { useI18n } from '@/lib/i18n/context';
 
 export default function Home() {
+  const { t, toggleLocale } = useI18n();
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
       <nav className="max-w-3xl mx-auto px-6 py-8 flex items-center justify-between">
         <span className="text-lg font-semibold tracking-tight text-foreground">
-          Smart Check-in
+          {t('common.appName')}
         </span>
-        <Link
-          href="/admin"
-          className="text-sm text-text-secondary hover:text-foreground transition-colors"
-        >
-          管理者
-        </Link>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={toggleLocale}
+            className="text-xs font-medium px-2.5 py-1 border border-border rounded-md text-text-secondary hover:text-foreground hover:border-foreground/30 transition-colors"
+          >
+            {t('lang.toggle')}
+          </button>
+          <Link
+            href="/admin"
+            className="text-sm text-text-secondary hover:text-foreground transition-colors"
+          >
+            {t('common.admin')}
+          </Link>
+        </div>
       </nav>
 
-      {/* Hero */}
       <section className="max-w-3xl mx-auto px-6 pt-16 pb-24">
         <div className="animate-fade-in">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground leading-tight mb-6">
-            鍵の受け渡しを、
-            <br />
-            なくす。
+            {t('landing.headline')}
           </h1>
           <p className="text-lg text-text-secondary leading-relaxed max-w-xl mb-12">
-            生体認証とSecret Codeによる二段階認証で、
-            無人施設でも安全なセルフチェックインを実現します。
-            フロント対応も、鍵の郵送も、もう必要ありません。
+            {t('landing.description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
               href="/checkin"
               className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-foreground text-background font-medium hover:opacity-90 transition-opacity"
             >
-              チェックインする
+              {t('landing.checkin')}
             </Link>
             <Link
               href="/admin"
               className="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-border text-foreground font-medium hover:bg-surface-secondary transition-colors"
             >
-              管理画面を開く
+              {t('landing.openAdmin')}
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Divider */}
       <div className="max-w-3xl mx-auto px-6">
         <div className="border-t border-border" />
       </div>
 
-      {/* How it works */}
       <section className="max-w-3xl mx-auto px-6 py-24">
         <h2 className="text-sm font-semibold text-text-muted uppercase tracking-widest mb-12">
-          使い方
+          {t('landing.howItWorks')}
         </h2>
-        <div className="space-y-16">
-          <div className="flex gap-8">
-            <div className="flex-shrink-0 w-8 text-right">
-              <span className="text-2xl font-light text-text-muted">1</span>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">事前登録</h3>
-              <p className="text-text-secondary leading-relaxed">
-                予約後に届くURLから、宿泊者情報と生体認証デバイスを登録します。
-                Touch ID・Face ID・Windows Helloなど、お使いのデバイスの認証機能がそのまま使えます。
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-8">
-            <div className="flex-shrink-0 w-8 text-right">
-              <span className="text-2xl font-light text-text-muted">2</span>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">生体認証でチェックイン</h3>
-              <p className="text-text-secondary leading-relaxed">
-                当日は登録したデバイスで生体認証を行い、事前に受け取ったSecret Codeを入力します。
-                ユーザー名やパスワードの入力は一切不要です。
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-8">
-            <div className="flex-shrink-0 w-8 text-right">
-              <span className="text-2xl font-light text-text-muted">3</span>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">ドア解錠PINの取得</h3>
-              <p className="text-text-secondary leading-relaxed">
-                認証が完了すると、スマートロックの解錠PINが画面に表示されます。
-                このPINを入力するだけで入室できます。
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Divider */}
-      <div className="max-w-3xl mx-auto px-6">
-        <div className="border-t border-border" />
-      </div>
-
-      {/* Security */}
-      <section className="max-w-3xl mx-auto px-6 py-24">
-        <h2 className="text-sm font-semibold text-text-muted uppercase tracking-widest mb-12">
-          セキュリティ
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+        <div className="grid gap-12 sm:grid-cols-3">
           {[
-            {
-              title: 'FIDO2/WebAuthn準拠',
-              desc: 'フィッシングに強いパスキー認証を採用。認証情報はデバイス外に送信されません。',
-            },
-            {
-              title: '二段階認証',
-              desc: '生体認証とSecret Codeの二要素で、なりすましや不正アクセスを防止します。',
-            },
-            {
-              title: 'パスワードレス',
-              desc: 'パスワードの記憶も管理も不要。生体情報で本人確認するため、漏洩リスクがありません。',
-            },
-            {
-              title: 'ワンタイム利用',
-              desc: 'Secret CodeとPINは予約ごとに発行。使い回しによるセキュリティリスクを排除します。',
-            },
-          ].map((item, i) => (
-            <div key={i} className="py-1">
-              <h3 className="font-semibold text-foreground mb-1.5">{item.title}</h3>
-              <p className="text-sm text-text-secondary leading-relaxed">{item.desc}</p>
+            { num: '01', title: t('landing.step1Title'), desc: t('landing.step1Desc') },
+            { num: '02', title: t('landing.step2Title'), desc: t('landing.step2Desc') },
+            { num: '03', title: t('landing.step3Title'), desc: t('landing.step3Desc') },
+          ].map((step) => (
+            <div key={step.num}>
+              <p className="text-xs text-text-muted font-mono mb-2">{step.num}</p>
+              <h3 className="text-foreground font-semibold mb-2">{step.title}</h3>
+              <p className="text-sm text-text-secondary leading-relaxed">{step.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Footer */}
+      <div className="max-w-3xl mx-auto px-6">
+        <div className="border-t border-border" />
+      </div>
+
+      <section className="max-w-3xl mx-auto px-6 py-24">
+        <h2 className="text-sm font-semibold text-text-muted uppercase tracking-widest mb-8">
+          {t('landing.security')}
+        </h2>
+        <ul className="space-y-3">
+          {[
+            t('landing.secFeature1'),
+            t('landing.secFeature2'),
+            t('landing.secFeature3'),
+            t('landing.secFeature4'),
+          ].map((feature, i) => (
+            <li key={i} className="flex items-start gap-3">
+              <span className="text-text-muted mt-0.5">✓</span>
+              <span className="text-sm text-text-secondary">{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <footer className="border-t border-border">
         <div className="max-w-3xl mx-auto px-6 py-8 flex items-center justify-between">
-          <span className="text-sm font-medium text-text-muted">Smart Check-in</span>
+          <span className="text-sm font-medium text-text-muted">{t('common.appName')}</span>
           <span className="text-sm text-text-muted">
             © {new Date().getFullYear()}
           </span>

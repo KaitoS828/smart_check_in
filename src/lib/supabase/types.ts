@@ -1,11 +1,16 @@
-// Database types - will be auto-generated later with Supabase CLI
-// For now, manual type definitions
+// Database types
 
 export interface Reservation {
   id: string;
   guest_name: string | null;
+  guest_name_kana: string | null;
   guest_address: string | null;
   guest_contact: string | null;
+  guest_occupation: string | null;
+  is_foreign_national: boolean;
+  nationality: string | null;
+  passport_number: string | null;
+  passport_image_url: string | null;
   secret_code: string;
   door_pin: string;
   is_checked_in: boolean;

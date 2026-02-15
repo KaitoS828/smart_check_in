@@ -1,0 +1,183 @@
+export type Locale = 'ja' | 'en';
+
+export const translations = {
+  // Common
+  'common.appName': { ja: 'Smart Check-in', en: 'Smart Check-in' },
+  'common.home': { ja: 'ホーム', en: 'Home' },
+  'common.admin': { ja: '管理者', en: 'Admin' },
+  'common.loading': { ja: '読込中...', en: 'Loading...' },
+  'common.error': { ja: 'エラーが発生しました', en: 'An error occurred' },
+  'common.back': { ja: '← ホームに戻る', en: '← Back to Home' },
+  'common.copy': { ja: 'コピー', en: 'Copy' },
+  'common.copied': { ja: '✓', en: '✓' },
+  'common.required': { ja: '*', en: '*' },
+  'common.submitting': { ja: '送信中...', en: 'Submitting...' },
+
+  // Landing Page
+  'landing.headline': { ja: 'スマートチェックイン', en: 'Smart Check-in' },
+  'landing.description': {
+    ja: '生体認証とSecret Codeによる二段階認証で、無人施設でも安全なセルフチェックインを実現します。フロント対応も、鍵の郵送も、もう必要ありません。',
+    en: 'Secure self-check-in with biometric authentication and Secret Code. No front desk or key delivery needed.',
+  },
+  'landing.checkin': { ja: 'チェックインする', en: 'Check in' },
+  'landing.openAdmin': { ja: '管理画面を開く', en: 'Open Admin' },
+  'landing.howItWorks': { ja: '使い方', en: 'How it works' },
+  'landing.step1Title': { ja: '事前登録', en: 'Pre-registration' },
+  'landing.step1Desc': {
+    ja: '予約後に届くURLから、宿泊者情報の入力と生体認証デバイスの登録を行います。',
+    en: 'Enter guest information and register your biometric device via the URL sent after booking.',
+  },
+  'landing.step2Title': { ja: 'セルフチェックイン', en: 'Self Check-in' },
+  'landing.step2Desc': {
+    ja: '当日、チェックイン画面で生体認証とSecret Codeを使って本人確認を行います。',
+    en: 'On the day, verify your identity with biometrics and Secret Code on the check-in page.',
+  },
+  'landing.step3Title': { ja: '解錠', en: 'Unlock' },
+  'landing.step3Desc': {
+    ja: '認証完了後、スマートロックのPINコードが表示されます。鍵の受け渡しは不要です。',
+    en: 'After authentication, the smart lock PIN is displayed. No key handoff needed.',
+  },
+  'landing.security': { ja: 'セキュリティ', en: 'Security' },
+  'landing.secFeature1': { ja: '生体認証（WebAuthn）による本人確認', en: 'Biometric verification (WebAuthn)' },
+  'landing.secFeature2': { ja: 'Secret Codeによる二段階認証', en: 'Two-factor authentication with Secret Code' },
+  'landing.secFeature3': { ja: '通信は全てTLS暗号化', en: 'All communication encrypted with TLS' },
+  'landing.secFeature4': { ja: '生体情報はデバイス内に保存（サーバー送信なし）', en: 'Biometric data stored on device only (never sent to server)' },
+
+  // Error Pages
+  'error.title': { ja: '問題が発生しました', en: 'Something went wrong' },
+  'error.description': { ja: '予期せぬエラーが発生しました。もう一度お試しください。', en: 'An unexpected error occurred. Please try again.' },
+  'error.retry': { ja: 'もう一度試す', en: 'Try again' },
+  'notFound.title': { ja: 'ページが見つかりません', en: 'Page not found' },
+  'notFound.description': { ja: 'お探しのページは存在しないか、移動された可能性があります。', en: 'The page you are looking for does not exist or has been moved.' },
+
+  // Check-in Page
+  'checkin.title': { ja: 'セルフチェックイン', en: 'Self Check-in' },
+  'checkin.subtitle': { ja: '生体認証とSecret Codeで本人確認を行います', en: 'Verify your identity with biometrics and Secret Code' },
+  'checkin.stepBiometric': { ja: '生体認証', en: 'Biometrics' },
+  'checkin.stepSecretCode': { ja: 'Secret Code', en: 'Secret Code' },
+  'checkin.stepComplete': { ja: '完了', en: 'Complete' },
+
+  // Biometric Auth
+  'bio.title': { ja: '生体認証', en: 'Biometric Authentication' },
+  'bio.description': { ja: '事前登録したデバイスで生体認証を行ってください。', en: 'Please authenticate with your pre-registered device.' },
+  'bio.supported': { ja: '対応: Face ID / Touch ID / Windows Hello / 指紋認証', en: 'Supported: Face ID / Touch ID / Windows Hello / Fingerprint' },
+  'bio.start': { ja: 'チェックインを開始', en: 'Start Check-in' },
+  'bio.waiting': { ja: '生体認証を待機中...', en: 'Waiting for biometrics...' },
+  'bio.notSupported': { ja: 'このブラウザはWebAuthn（生体認証）に対応していません。Chrome、Safari、Firefoxの最新版をご利用ください。', en: 'This browser does not support WebAuthn. Please use the latest Chrome, Safari, or Firefox.' },
+  'bio.cancelled': { ja: '生体認証がキャンセルされました。もう一度お試しください。', en: 'Authentication was cancelled. Please try again.' },
+  'bio.failed': { ja: '生体認証に失敗しました。登録済みのデバイスをご確認ください。', en: 'Authentication failed. Please check your registered device.' },
+
+  // Secret Code Input
+  'secret.title': { ja: 'Secret Code 入力', en: 'Enter Secret Code' },
+  'secret.description': { ja: '事前登録時に発行されたSecret Codeを入力してください。', en: 'Enter the Secret Code issued during pre-registration.' },
+  'secret.placeholder': { ja: 'XXX-XXX-XX0', en: 'XXX-XXX-XX0' },
+  'secret.submit': { ja: '認証する', en: 'Verify' },
+  'secret.verifying': { ja: '認証中...', en: 'Verifying...' },
+
+  // Check-in Complete
+  'complete.title': { ja: 'チェックイン完了', en: 'Check-in Complete' },
+  'complete.greeting': { ja: 'ようこそ', en: 'Welcome' },
+  'complete.doorPin': { ja: 'ドア解錠PIN', en: 'Door Unlock PIN' },
+  'complete.doorPinNote': { ja: 'このPINコードでスマートロックを解錠してください', en: 'Use this PIN to unlock the smart lock' },
+  'complete.backToTop': { ja: 'トップに戻る', en: 'Back to Top' },
+
+  // Register Page
+  'register.title': { ja: '事前登録', en: 'Pre-registration' },
+  'register.subtitle': { ja: '宿泊者情報とデバイス登録を完了してください', en: 'Complete guest information and device registration' },
+  'register.stepGuest': { ja: '宿泊者情報', en: 'Guest Info' },
+  'register.stepDevice': { ja: 'デバイス登録', en: 'Device Registration' },
+  'register.complete': { ja: '登録完了', en: 'Registration Complete' },
+  'register.completeDesc': { ja: '事前登録がすべて完了しました。チェックイン当日は、登録したデバイスとSecret Codeをご準備ください。', en: 'Pre-registration is complete. Please have your registered device and Secret Code ready on check-in day.' },
+  'register.howToCheckin': { ja: 'チェックイン方法:', en: 'How to check in:' },
+  'register.howStep1': { ja: 'チェックイン画面にアクセス', en: 'Go to the check-in page' },
+  'register.howStep2': { ja: '生体認証でデバイス確認', en: 'Authenticate with biometrics' },
+  'register.howStep3': { ja: 'Secret Codeを入力', en: 'Enter your Secret Code' },
+  'register.howStep4': { ja: '解錠PINが表示されます', en: 'Unlock PIN will be displayed' },
+  'register.notFound': { ja: '予約が見つかりません', en: 'Reservation not found' },
+  'register.notFoundDesc': { ja: '指定された予約IDが存在しません。URLをご確認ください。', en: 'The specified reservation ID does not exist. Please check the URL.' },
+
+  // Guest Info Form
+  'guest.title': { ja: '宿泊者名簿', en: 'Guest Register' },
+  'guest.subtitle': { ja: '旅館業法に基づく記載事項です', en: 'Required by the Hotel Business Act' },
+  'guest.alreadyRegistered': { ja: '✓ 宿泊者情報は既に登録されています', en: '✓ Guest information has already been registered' },
+  'guest.basicInfo': { ja: '基本情報（全宿泊者）', en: 'Basic Information (All Guests)' },
+  'guest.name': { ja: '宿泊者氏名', en: 'Full Name' },
+  'guest.namePlaceholder': { ja: '山田 太郎', en: 'John Smith' },
+  'guest.nameKana': { ja: 'ふりがな', en: 'Name (Kana/Phonetic)' },
+  'guest.nameKanaPlaceholder': { ja: 'やまだ たろう', en: 'John Smith' },
+  'guest.address': { ja: '住所', en: 'Address' },
+  'guest.addressPlaceholder': { ja: '東京都渋谷区...', en: '123 Main St, City...' },
+  'guest.occupation': { ja: '職業', en: 'Occupation' },
+  'guest.occupationPlaceholder': { ja: '会社員', en: 'Engineer' },
+  'guest.contact': { ja: '連絡先（電話番号）', en: 'Phone Number' },
+  'guest.contactPlaceholder': { ja: '090-1234-5678', en: '+1-234-567-8900' },
+  'guest.foreignNational': { ja: '日本国内に住所を有しない外国人', en: 'Foreign national without a Japanese address' },
+  'guest.nationality': { ja: '国籍', en: 'Nationality' },
+  'guest.nationalityPlaceholder': { ja: '例: United States', en: 'e.g. United States' },
+  'guest.passportNumber': { ja: '旅券番号', en: 'Passport Number' },
+  'guest.passportNumberPlaceholder': { ja: '例: AB1234567', en: 'e.g. AB1234567' },
+  'guest.passportImage': { ja: 'パスポート画像', en: 'Passport Image' },
+  'guest.passportImageNote': { ja: 'JPG, PNG, WebP, HEIC / 最大10MB', en: 'JPG, PNG, WebP, HEIC / Max 10MB' },
+  'guest.submit': { ja: '宿泊者情報を送信', en: 'Submit Guest Information' },
+  'guest.update': { ja: '情報を更新', en: 'Update Information' },
+
+  // Passkey Registration
+  'passkey.title': { ja: '生体認証デバイス登録', en: 'Biometric Device Registration' },
+  'passkey.description': { ja: 'チェックイン時に使用する生体認証（パスキー）を登録します。', en: 'Register biometric authentication (passkey) for check-in.' },
+  'passkey.supported': { ja: '対応デバイス:', en: 'Supported devices:' },
+  'passkey.iphone': { ja: 'iPhone/iPad: Face ID または Touch ID', en: 'iPhone/iPad: Face ID or Touch ID' },
+  'passkey.mac': { ja: 'Mac: Touch ID', en: 'Mac: Touch ID' },
+  'passkey.windows': { ja: 'Windows: Windows Hello（顔認証・指紋認証）', en: 'Windows: Windows Hello (Face/Fingerprint)' },
+  'passkey.android': { ja: 'Android: 指紋認証または顔認証', en: 'Android: Fingerprint or Face Recognition' },
+  'passkey.register': { ja: 'デバイスを登録（生体認証）', en: 'Register Device (Biometrics)' },
+  'passkey.waiting': { ja: '生体認証を待機中...', en: 'Waiting for biometrics...' },
+  'passkey.success': { ja: '✓ デバイス登録が完了しました', en: '✓ Device registration complete' },
+  'passkey.successDesc': { ja: 'チェックイン当日は、このデバイスで生体認証を行ってください。', en: 'Use this device for biometric authentication on check-in day.' },
+  'passkey.secretCode': { ja: 'Secret Code', en: 'Secret Code' },
+  'passkey.secretCodeNote': { ja: 'このSecret Codeは当日のチェックインで必要です。スクリーンショットを保存してください。', en: 'This Secret Code is required for check-in. Please save a screenshot.' },
+  'passkey.note': { ja: '※ 生体認証を登録すると、チェックイン時にこのデバイスでのみ解錠PINを取得できます。', en: '* Once registered, only this device can be used to obtain the unlock PIN at check-in.' },
+
+  // Admin Login
+  'adminLogin.title': { ja: '管理者ログイン', en: 'Admin Login' },
+  'adminLogin.subtitle': { ja: 'パスワードを入力してください', en: 'Enter the admin password' },
+  'adminLogin.password': { ja: 'パスワード', en: 'Password' },
+  'adminLogin.submit': { ja: 'ログイン', en: 'Log in' },
+  'adminLogin.submitting': { ja: 'ログイン中...', en: 'Logging in...' },
+
+  // Admin Dashboard
+  'admin.title': { ja: '管理ダッシュボード', en: 'Admin Dashboard' },
+  'admin.subtitle': { ja: '予約の作成と管理', en: 'Create and manage reservations' },
+  'admin.createTitle': { ja: '新規予約作成', en: 'Create Reservation' },
+  'admin.listTitle': { ja: '予約一覧', en: 'Reservations' },
+  'admin.doorPin': { ja: 'スマートロック Door PIN', en: 'Smart Lock Door PIN' },
+  'admin.doorPinHint': { ja: 'チェックイン後にゲストに提示される解錠用PINコードです', en: 'This PIN is shown to guests after check-in for door unlocking' },
+  'admin.createButton': { ja: '新規予約を作成', en: 'Create Reservation' },
+  'admin.creating': { ja: '作成中...', en: 'Creating...' },
+  'admin.created': { ja: '✓ 予約が作成されました', en: '✓ Reservation created' },
+  'admin.regUrl': { ja: '事前登録URL', en: 'Registration URL' },
+  'admin.emailTitle': { ja: 'ゲストへの案内メール', en: 'Guest Notification Email' },
+  'admin.emailApp': { ja: 'メールアプリで作成', en: 'Open in Mail App' },
+  'admin.emailCopy': { ja: 'メール文面をコピー', en: 'Copy Email Text' },
+  'admin.emailCopied': { ja: '✓ コピーしました', en: '✓ Copied' },
+  'admin.emailPreview': { ja: '▼ メール文面をプレビュー', en: '▼ Preview Email' },
+  'admin.emailPreviewClose': { ja: '▲ プレビューを閉じる', en: '▲ Close Preview' },
+  'admin.emailSubject': { ja: '【ご予約ありがとうございます】セルフチェックインのご案内', en: '[Thank You] Self Check-in Guide' },
+  'admin.important': { ja: '重要:', en: 'Important:' },
+  'admin.importantNote': { ja: 'Secret Codeは当日のチェックインで必要です。URLと一緒にゲストに送付してください。', en: 'The Secret Code is required at check-in. Please send it to the guest along with the URL.' },
+  'admin.refresh': { ja: '更新', en: 'Refresh' },
+  'admin.csvExport': { ja: 'CSV出力', en: 'Export CSV' },
+  'admin.noReservations': { ja: '予約がまだありません。新規予約を作成してください。', en: 'No reservations yet. Create a new reservation.' },
+  'admin.guestCol': { ja: '宿泊者', en: 'Guest' },
+  'admin.occupationCol': { ja: '職業', en: 'Occupation' },
+  'admin.secretCodeCol': { ja: 'Secret Code', en: 'Secret Code' },
+  'admin.statusCol': { ja: '状態', en: 'Status' },
+  'admin.dateCol': { ja: '作成日', en: 'Created' },
+  'admin.unregistered': { ja: '（未登録）', en: '(Not registered)' },
+  'admin.checkedIn': { ja: '済', en: 'Done' },
+  'admin.notCheckedIn': { ja: '未', en: 'Pending' },
+
+  // Language
+  'lang.toggle': { ja: 'EN', en: 'JA' },
+} as const;
+
+export type TranslationKey = keyof typeof translations;

@@ -4,9 +4,14 @@ import { z } from 'zod';
 
 // Validation schema for updating guest info
 const UpdateGuestInfoSchema = z.object({
-  guest_name: z.string().min(1, 'Guest name is required'),
-  guest_address: z.string().min(1, 'Address is required'),
-  guest_contact: z.string().min(1, 'Contact information is required'),
+  guest_name: z.string().min(1, 'お名前は必須です'),
+  guest_name_kana: z.string().min(1, 'ふりがなは必須です'),
+  guest_address: z.string().min(1, '住所は必須です'),
+  guest_contact: z.string().min(1, '連絡先は必須です'),
+  guest_occupation: z.string().min(1, '職業は必須です'),
+  is_foreign_national: z.boolean().default(false),
+  nationality: z.string().optional(),
+  passport_number: z.string().optional(),
 });
 
 /**
@@ -65,17 +70,42 @@ export async function PATCH(
       );
     }
 
-    const { guest_name, guest_address, guest_contact } = validation.data;
+    const {
+      guest_name,
+      guest_name_kana,
+      guest_address,
+      guest_contact,
+      guest_occupation,
+      is_foreign_national,
+      nationality,
+      passport_number,
+    } = validation.data;
+
     const supabase = await createClient();
+
+    // Build update data
+    const updateData: Record<string, unknown> = {
+      guest_name,
+      guest_name_kana,
+      guest_address,
+      guest_contact,
+      guest_occupation,
+      is_foreign_national,
+    };
+
+    if (is_foreign_national) {
+      updateData.nationality = nationality || null;
+      updateData.passport_number = passport_number || null;
+    } else {
+      updateData.nationality = null;
+      updateData.passport_number = null;
+      updateData.passport_image_url = null;
+    }
 
     // Update reservation
     const { data: reservation, error } = await supabase
       .from('reservations')
-      .update({
-        guest_name,
-        guest_address,
-        guest_contact,
-      })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
