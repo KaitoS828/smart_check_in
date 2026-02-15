@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Reservation } from '@/lib/supabase/types';
 import ReservationList from './components/ReservationList';
 import CreateReservationForm from './components/CreateReservationForm';
@@ -9,6 +10,7 @@ import { useI18n } from '@/lib/i18n/context';
 
 export default function AdminPage() {
   const { t, toggleLocale } = useI18n();
+  const router = useRouter();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -39,6 +41,11 @@ export default function AdminPage() {
     setReservations((prev) => [newReservation, ...prev]);
   };
 
+  const handleLogout = async () => {
+    await fetch('/api/admin/logout', { method: 'POST' });
+    router.push('/admin/login');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <nav className="max-w-6xl mx-auto px-6 py-8 flex items-center justify-between">
@@ -51,6 +58,12 @@ export default function AdminPage() {
             className="text-xs font-medium px-2.5 py-1 border border-border rounded-md text-text-secondary hover:text-foreground hover:border-foreground/30 transition-colors"
           >
             {t('lang.toggle')}
+          </button>
+          <button
+            onClick={handleLogout}
+            className="text-xs font-medium px-2.5 py-1 border border-border rounded-md text-text-secondary hover:text-danger hover:border-danger/30 transition-colors"
+          >
+            {t('admin.logout')}
           </button>
           <span className="text-xs font-medium text-text-muted uppercase tracking-widest">
             {t('common.admin')}
@@ -81,9 +94,17 @@ export default function AdminPage() {
           <div className="lg:col-span-2">
             <div className="border border-border rounded-lg p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-semibold text-foreground">
-                  {t('admin.listTitle')}
-                </h2>
+                <div className="flex items-center gap-4">
+                  <h2 className="text-lg font-semibold text-foreground">
+                    {t('admin.listTitle')}
+                  </h2>
+                  <Link
+                    href="/admin/archive"
+                    className="text-xs font-medium text-text-secondary hover:text-foreground transition-colors flex items-center gap-1"
+                  >
+                    {t('admin.viewArchive')}
+                  </Link>
+                </div>
                 <button
                   onClick={fetchReservations}
                   className="px-4 py-2 text-sm font-medium border border-border rounded-lg text-foreground hover:bg-surface-secondary transition-colors"

@@ -38,6 +38,7 @@ export default function RootLayout({
     <html lang="ja" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         <I18nProvider>{children}</I18nProvider>
       </body>

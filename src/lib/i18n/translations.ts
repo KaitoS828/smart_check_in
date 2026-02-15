@@ -176,6 +176,19 @@ export const translations = {
   'admin.checkedIn': { ja: '済', en: 'Done' },
   'admin.notCheckedIn': { ja: '未', en: 'Pending' },
 
+  'admin.logout': { ja: 'ログアウト', en: 'Log out' },
+  'admin.archive': { ja: 'アーカイブ', en: 'Archive' },
+  'admin.unarchive': { ja: 'アーカイブ解除', en: 'Unarchive' },
+  'admin.viewArchive': { ja: 'アーカイブ一覧', en: 'View Archive' },
+  'admin.selected': { ja: '件選択中', en: 'selected' },
+  'admin.archiveSelected': { ja: '選択した項目をアーカイブ', en: 'Archive Selected' },
+  'admin.unarchiveSelected': { ja: '選択した項目を戻す', en: 'Unarchive Selected' },
+  'admin.exportSelected': { ja: '選択した項目をCSV出力', en: 'Export Selected CSV' },
+  'admin.backToDashboard': { ja: 'ダッシュボードに戻る', en: 'Back to Dashboard' },
+  'admin.noSelection': { ja: '項目が選択されていません', en: 'No items selected' },
+  'admin.confirmArchive': { ja: '選択した予約をアーカイブしますか？', en: 'Archive selected reservations?' },
+  'admin.confirmUnarchive': { ja: '選択した予約をアーカイブから戻しますか？', en: 'Unarchive selected reservations?' },
+
   // Language
   'lang.toggle': { ja: 'EN', en: 'JA' },
 } as const;

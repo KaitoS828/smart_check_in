@@ -8,17 +8,29 @@ const CreateReservationSchema = z.object({
   door_pin: z.string().min(1, 'Door PIN is required'),
 });
 
+// Validation schema for bulk updating reservations
+const BulkUpdateReservationSchema = z.object({
+  ids: z.array(z.string()),
+  is_archived: z.boolean(),
+});
+
 /**
  * GET /api/reservations
- * List all reservations
+ * List all reservations with optional filtering
+ * Query Params:
+ * - archived: boolean (default: false)
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const archived = searchParams.get('archived') === 'true';
+
     const supabase = await createClient();
 
     const { data: reservations, error } = await supabase
       .from('reservations')
       .select('*')
+      .eq('is_archived', archived)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -107,6 +119,49 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ reservation }, { status: 201 });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PATCH /api/reservations
+ * Bulk update reservations (e.g. archive/unarchive)
+ */
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+
+    // Validate input
+    const validation = BulkUpdateReservationSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: validation.error.issues[0].message },
+        { status: 400 }
+      );
+    }
+
+    const { ids, is_archived } = validation.data;
+    const supabase = await createClient();
+
+    const { error } = await supabase
+      .from('reservations')
+      .update({ is_archived })
+      .in('id', ids);
+
+    if (error) {
+      console.error('Error updating reservations:', error);
+      return NextResponse.json(
+        { error: 'Failed to update reservations' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json(

@@ -1,18 +1,31 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 /**
  * GET /api/reservations/export
  * Export reservations as CSV
+ * Query Params:
+ * - ids: string (optional) - Comma-separated list of reservation IDs to export
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const idsParam = searchParams.get('ids');
+
     const supabase = await createClient();
 
-    const { data: reservations, error } = await supabase
+    let query = supabase
       .from('reservations')
       .select('*')
       .order('created_at', { ascending: false });
+
+    // Filter by IDs if provided
+    if (idsParam) {
+      const ids = idsParam.split(',');
+      query = query.in('id', ids);
+    }
+
+    const { data: reservations, error } = await query;
 
     if (error) {
       console.error('Error fetching reservations:', error);

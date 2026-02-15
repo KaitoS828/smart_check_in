@@ -14,6 +14,7 @@ export interface Reservation {
   secret_code: string;
   door_pin: string;
   is_checked_in: boolean;
+  is_archived: boolean;
   created_at: string;
   updated_at: string;
 }
